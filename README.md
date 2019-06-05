@@ -1,33 +1,13 @@
 # Serverless Infosec Examples
 
-The following is based the 2019 Cackalacky talk entitled "Making Alexa Do Your Dirty Work - Improving Your Toolkit With Serverless Computing"
+This project contains a small collection of infosec specific [Serverless](https://github.com/serverless/serverless) functions for the 2019 [CackalackyCon](https://cackalackycon.org/) talk entitled **[Making Alexa Do Your Dirty Work - Improving Your Toolkit With Serverless Computing](https://www.notion.so/jumpm4n/Making-Alexa-Do-Your-Dirty-Work-fcf2ee525bba4a618b84027bfedf4614)**.
 
-<img align="right" width="300" src="https://s3-us-west-2.amazonaws.com/assets.site.serverless.com/email/sls-getting-started.gif" />
+Notes and slides for the talk can be found **[here](https://www.notion.so/jumpm4n/Making-Alexa-Do-Your-Dirty-Work-fcf2ee525bba4a618b84027bfedf4614)**.
 
-A small collection of [Serverless Framework](https://github.com/serverless/serverless) services designed for infosec practitioners.
+### Examples
 
-(This repo is a fork of the official Serverless Framework examples, see https://github.com/serverless/examples for more information)
+⚠️ The following examples are in some cases *very* rough around the edges and should not be considered production ready.
 
-## Table of Contents
-
-- [Serverless Infosec Examples](#serverless-infosec-examples)
-  - [Table of Contents](#table-of-contents)
-  - [Getting Started](#getting-started)
-  - [Examples](#examples)
-
-## Getting Started
-
-If you are new to serverless as a whole, I'd recommend starting with a simple example from the official Serverless repo. For instance, the HTTP API Endpoint in [NodeJS](https://github.com/serverless/examples/tree/master/aws-node-simple-http-endpoint) is one that they recommend.
-
-## Examples
-
-Each example contains a `README.md` with an explanation about the service and it's use cases.
-
-To install any of these you can run:
-
-```bash
-serverless install -u https://github.com/gabemarshall/serverless-infosec-examples/tree/master/folder-name -n my-project
-```
 
 | Example                                                                                                                                                                                                     | Runtime |
 | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | :------ |
