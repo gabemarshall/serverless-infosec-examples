@@ -1,5 +1,7 @@
 # Serverless Infosec Examples
 
+The following is based the 2019 Cackalacky talk entitled "Making Alexa Do Your Dirty Work - Improving Your Toolkit With Serverless Computing"
+
 <img align="right" width="300" src="https://s3-us-west-2.amazonaws.com/assets.site.serverless.com/email/sls-getting-started.gif" />
 
 A small collection of [Serverless Framework](https://github.com/serverless/serverless) services designed for infosec practitioners.
