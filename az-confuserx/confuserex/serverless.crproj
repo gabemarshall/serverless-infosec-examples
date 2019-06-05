@@ -1,0 +1,4 @@
+<project outputDir="D:\local\VirtualDirectory0\" baseDir="D:\local\VirtualDirectory0\confuserex" xmlns="http://confuser.codeplex.com">
+  <packer id="compressor" />
+  <module path="payload.exe" />
+</project>

@@ -1,0 +1,65 @@
+#!/usr/bin/env node
+require('dotenv').config();
+const argv = require('yargs').argv;
+const axios = require('axios');
+const azure = require('azure-storage');
+const slsHelper = require('./lib/serverlessHelpers');
+const serviceName = require('./lib/serverlessHelpers').getServiceName();
+const containerName = slsHelper.getFunctionProps().confuserex.environment.BLOB_CONTAINER_NAME;
+const Log = require('./lib/log');
+const chalk = require('chalk');
+const sh = require('shelljs');
+const azBlob = azure.createBlobService(process.env['AZURE_STORAGE_CONNECTION_STRING']);
+
+azBlob.createContainerIfNotExists(containerName, function (err, result, response) {
+  if (err) {
+    console.log(err);
+  }
+  if (result.created) {
+    console.log('Preparing az-confuser...');
+    setTimeout(function () {
+      console.log('Completed! Please re-run');
+    }, 1500)
+  }
+})
+
+
+if (!process.argv[2]) {
+  console.log(chalk.red('Missing required .cs source file, please try again'));
+  process.exit(1);
+}
+
+let srcName = process.argv[2];
+let compiledName = srcName.replace('.cs', '.exe');
+let logSrcName = chalk.whiteBright(srcName)
+console.log(`${chalk.gray('[+]')} Uploading ${logSrcName} to azure blob storage ☁️`);
+
+azBlob.createBlockBlobFromLocalFile(containerName, 'payload.cs', srcName, function (err, result, response) {
+  if (!err) {
+    console.log(`${chalk.gray('[+]')} Compiling and obfuscating with ${chalk.redBright('ConfuserEx')}`);
+    axios({
+      method: 'post',
+      url: `https://${serviceName}.azurewebsites.net/api/confuserex`,
+      data: {
+        auth: process.env['AZURE_STORAGE_CONNECTION_STRING'].split(';')[2],
+        container: containerName
+      }
+    }).then(function (response) {
+      azBlob.getBlobToLocalFile(containerName, 'payload.exe', compiledName, function (err, serverBlob) {
+        if (err) {
+          console.log(err)
+        } else {
+          // Cleanup temporary files in the blob container
+          azBlob.deleteBlobIfExists(containerName, 'payload.exe', () => { })
+          azBlob.deleteBlobIfExists(containerName, 'payload.cs', () => { })
+
+          console.log(`${chalk.green('[✓]')} Build Successful - Output saved locally as ${chalk.whiteBright(compiledName)}`)
+        }
+      })
+    })
+  } else {
+    console.log(err);
+  }
+});
+
+

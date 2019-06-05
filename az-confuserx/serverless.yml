@@ -1,0 +1,27 @@
+service: azure-node-confuserex
+
+provider:
+  name: azure
+  location: West US
+
+plugins:
+  - serverless-azure-functions
+
+package:
+  include:
+    - confuserex/**
+  exclude:
+    - node_modules/**
+    - .gitignore
+    - package.json
+    - .git/**
+
+functions:
+  confuserex:
+     handler: handler.confuserex
+     environment:
+        BLOB_CONTAINER_NAME: '' # Replace this with a name for your storage bucket, ex: azure-confuserex-blobstore
+     events:
+       - http: true
+         x-azure-settings:
+           authLevel: anonymous
