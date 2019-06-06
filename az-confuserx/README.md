@@ -15,22 +15,11 @@ In this example, we demonstrate how Azure v1 functions can be utilized for autom
 [![asciicast](https://asciinema.org/a/250261.svg)](https://asciinema.org/a/250261)
 
 
-For detailed instructions on how to setup and use this function, go [here](https://www.notion.so/jumpm4n/Azure-ConfuserEx-az-confuserx-0e714d6486264d39a66b54626c4e23c1)
-
-
 ## Deploying
 
-To deploy, use the `deploy` command and follow the instructions to log into your Azure
-account.
+This example requires some custom steps to be properly deployed. 
 
-```bash
-$ serverless deploy
-Serverless: Packaging service...
-Serverless: Logging in to Azure
-Serverless: Paste this code (copied to your clipboard) into the launched browser, and complete the authentication process: BLAZSRMVJ
-```
-
-Once authenticated, the session will continue and deploy the app.
+A tutorial to get this up and running can be found [here](https://www.notion.so/jumpm4n/Azure-ConfuserEx-az-confuserx-0e714d6486264d39a66b54626c4e23c1)
 
 ## Usage
 
