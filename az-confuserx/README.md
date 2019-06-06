@@ -12,15 +12,11 @@ authorName: 'Gabe Marshall'
 
 In this example, we demonstrate how Azure v1 functions can be utilized for automating payload readiness.
 
-I highly recommend going through [Azure Functions - Quick Start](https://serverless.com/framework/docs/providers/azure/guide/quick-start/) before proceeding.
+[![asciicast](https://asciinema.org/a/250261.svg)](https://asciinema.org/a/250261)
 
-_You will need to change the values of `service` and `BLOB_CONTAINER_NAME` in your `serverless.yml` file_
 
-## Setup
+For detailed instructions on how to setup and use this function, go [here](https://www.notion.so/jumpm4n/Azure-ConfuserEx-az-confuserx-0e714d6486264d39a66b54626c4e23c1)
 
-1. Node.js v6.x is recommended (since Azure v1 functions use v6.x as their runtime)
-2. Install the serverless framework - `npm install -g serverless`
-3. Install the dependencies of this example - `npm install`
 
 ## Deploying
 
