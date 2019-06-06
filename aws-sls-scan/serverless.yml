@@ -1,0 +1,53 @@
+service: sls-scan
+# tenant: gabemarshall
+# Currently we have to manually track which regions we deploy to (need to figure out a way to automate this)
+# This is currently used by nmap.js to randomize which region to select
+slskit-regions:
+- us-east-1
+#- us-east-1
+#- us-west-2
+# - us-west-1  (optionally deploy in multiple regions to diversify source ip's)
+# - us-east-2
+# - us-west-2
+# - ap-northeast-1
+# - ap-northeast-2
+# - ap-south-1
+# - ap-southeast-1
+# - ap-southeast-2
+# - ca-central-1
+# - cn-north-1
+# - eu-central-1
+# - eu-west-1
+# - eu-west-2
+# - eu-west-3
+# - sa-east-1
+
+slskit-logging: true
+
+provider:
+  name: aws
+  runtime: nodejs8.10
+  memorySize: 128
+  stage: web
+
+  iamRoleStatements:
+    - Effect: "Allow"
+      Action:
+        - "s3:ListBucket"
+        - "s3:PutObject"
+        - "s3:GetObject"
+        - "s3:DeleteObject"
+      Resource: "arn:aws:s3:::*"
+
+functions:
+  gobusterhttp:
+    environment:
+        BUCKET: "gobuster-bucket-${sls:instanceId}"
+    handler: gobusterHandler.gobusterHttp
+    timeout: 900
+  nmapscan:
+    handler: nmapHandler.portscan
+    timeout: 30
+
+resources:
+    - ${file(resources/s3-bucket.yml)}

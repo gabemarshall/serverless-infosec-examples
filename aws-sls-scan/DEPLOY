@@ -1,0 +1,34 @@
+#!/usr/bin/env node
+
+const childProcess = require('child_process');
+var spawn = require('child-process-promise').spawn;
+const Log = require('./lib/log');
+const regions = require('./lib/serverlessHelpers').getRegions();
+
+console.log(`Deploying gobuster to ${regions.length} region(s) (this may take awhile)`)
+
+
+async function asyncForEach(array, callback) {
+  for (let index = 0; index < array.length; index++) {
+    await callback(array[index], index, array)
+  }
+}
+
+(async function () {
+  asyncForEach(regions, async (region) => {
+    let init = Log.loading(`Deploying to ${region} `);
+    let err;
+    await spawn('serverless', ['deploy', `--region ${region}`]).catch(function (err) {
+      init.status.error(init.finished);
+      err = true;
+    })
+    if (!err) {
+      init.status.success(init.finished);
+
+    }
+
+
+
+    init.status.success(init.finished);
+  })
+})()

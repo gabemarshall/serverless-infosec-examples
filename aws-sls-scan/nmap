@@ -1,0 +1,72 @@
+#!/usr/bin/env node
+
+const argv = require('yargs').argv;
+const fs = require('fs');
+const chalk = require('chalk');
+const AWS = require('aws-sdk');
+const Log = require('./lib/log');
+const slsHelper = require('./lib/serverlessHelpers');
+const regions = require('./lib/serverlessHelpers').getRegions();
+const localFilename = __filename.split('/').reverse()[0].split('.')[0];
+const functionFQN = slsHelper.getFunctionFQN(localFilename);
+
+let s3Helper = require('./lib/s3');
+let args = argv._.join(' ');
+let selectedRegion;
+
+if (argv.region) {
+  selectedRegion = argv.region;
+} else {
+  selectedRegion = regions[Math.floor(Math.random() * regions.length)];
+}
+
+module.exports = function () {
+  try {
+    var command = process.argv[2].toLowerCase();
+    var nmapArguments = process.argv.slice(2).join(' ');
+
+  } catch (err) {
+    console.log('Display help menu')
+    process.exit(1)
+  }
+
+  AWS.config.update({
+    region: selectedRegion
+  });
+
+  var lambda = new AWS.Lambda();
+
+  let init = Log.loading(`Initializing serverless Nmap in ${selectedRegion} `);
+
+  var params = {
+    FunctionName: functionFQN,
+    Payload: `{"args":"${nmapArguments}"}`
+  };
+
+  init.status.success(init.finished);
+
+  let inProgress = Log.loading(`Nmap scan in progress...`);
+
+  lambda.invoke(params, function (err, data) {
+    let functionResponse = JSON.parse(data.Payload);
+    inProgress.status.success(inProgress.finished);
+    if (err) {
+      console.log(err, err.stack);
+    } else {
+      Log.success(`Nmap successfully ran from ${functionResponse.ip}`);
+      if (slsHelper.loggingIsEnabled) {
+        let logEntry = `${functionResponse.ip} - [${new Date().toUTCString()}] - "nmap ${nmapArguments}"\n`;
+        fs.appendFileSync(functionFQN + '.log', logEntry);
+      }
+      setTimeout(function () {
+        console.log(functionResponse.output);
+      }, 250);
+    }
+  });
+}
+
+if (process.argv[1].includes('slskit')) {
+  process.argv.splice(1, 1);
+} else {
+  module.exports();
+}

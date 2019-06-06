@@ -1,5 +1,6 @@
 .serverless
 *.log
+sls-gobuster.log
 npm-debug.log
 pids
 *.pid

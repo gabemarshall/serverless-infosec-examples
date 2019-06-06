@@ -1,0 +1,136 @@
+#!/usr/bin/env node
+// node --inspect-brk gobuster.js -w foo --help foo hey
+const argv = require('yargs').argv;
+const fs = require('fs');
+const chalk = require('chalk');
+const AWS = require('aws-sdk');
+const Log = require('./lib/log');
+const slsHelper = require('./lib/serverlessHelpers');
+const collect = require('collect.js');
+const bluebird = require('bluebird');
+const localFilename = __filename.split('/').reverse()[0].split('.')[0];
+const functionFQN = slsHelper.getFunctionFQN(localFilename);
+
+let s3Helper = require('./lib/s3');
+
+let args = argv._.join(' ');
+let bucketName;
+
+function exit() {
+  process.exit(1);
+}
+
+function error() {
+  console.log(chalk.red('Error'))
+}
+
+module.exports = async function () {
+
+  let localWordlist;
+  let localWordlistName;
+  let remoteOutputName;
+  let processArgs = process.argv;
+  if (argv.o) {
+    remoteOutputName = argv.o;
+  }
+  if (argv.w) {
+    localWordlistName = argv.w.split('/').pop()
+    try { localWordlist = fs.readFileSync(argv.w) } catch (err) { error('reading wordlist') }
+    let argCollection = collect(process.argv);
+
+    argCollection.transform(function (item, key) {
+      if (item.includes(argv.o)) {
+        return item.replace(item, '/tmp/' + remoteOutputName)
+      } else if (item.includes(argv.w)) {
+        return item.replace(item, '/tmp/' + localWordlistName);
+      } else {
+        return item
+      }
+    });
+
+    processArgs = argCollection.all();
+
+  } else {
+    console.log(chalk.red('(slskit error) ') + 'A WordList (-w): Must be specified');
+    process.exit(1);
+  }
+
+  var gobusterArgs = processArgs.slice(2).join(' ');
+
+  // Get the deployed s3 bucket name from .serverless/cloudformation-template-update-stack.json
+  bucketName = slsHelper.getBucketNameFromLocal();
+
+  if (!bucketName) {
+    console.log("This function has not been properly installed");
+    process.exit(1)
+  }
+  const regions = require('./lib/serverlessHelpers').getRegions();
+
+  let num = Math.floor(Math.random() * regions.length);
+
+  let selectedRegion = regions[num];
+
+  AWS.config.update({
+    region: selectedRegion//selectedRegion
+  });
+
+  const lambda = new AWS.Lambda();
+  const s3 = new AWS.S3();
+  // Upload wordlist to the s3 bucket for temporary storage (the lambda function will retrieve the wordlist, use it, then delete it)
+  let wordlistSettings = { Bucket: bucketName, Key: localWordlistName, Body: localWordlist }
+  await s3.putObject(wordlistSettings).promise();
+
+  let init = Log.loading(`Initializing serverless gobuster in ${selectedRegion} `);
+
+  var params = {
+    FunctionName: functionFQN,//'toolkit-testing-app',
+    Payload: `{"args":"${gobusterArgs}","wordlist":"${localWordlistName}", "output":"${remoteOutputName}"}`
+  };
+  init.status.success(init.finished);
+
+  let inProgress = Log.loading(`Invoking Gobuster scan...`);
+  lambda.invoke(params, function (err, data) {
+    let functionResponse = JSON.parse(data.Payload);
+    inProgress.status.success(inProgress.finished);
+    if (err) {
+      console.log(err, err.stack);
+    } else {
+      Log.success(`Gobuster successfully ran from ${functionResponse.ip}`);
+
+      if (slsHelper.loggingIsEnabled) {
+        let logEntry = `${functionResponse.ip} - [${new Date().toUTCString()}] - "gobuster ${gobusterArgs}"\n`;
+        fs.appendFileSync(functionFQN + '.log', logEntry);
+      }
+
+      if (argv.o) {
+        let cleanup = Log.loading(`Cleaning up temporary files...`);
+        try {
+          let logFile = 'temp-gobuster-output.log';
+          s3Helper.stat({ Bucket: bucketName, Key: logFile });
+          s3Helper.download({ Bucket: bucketName, Key: logFile }, argv.o).then(function () {
+            // Delete remotely stored (s3) output file from gobuster
+            s3Helper.delete({ Bucket: bucketName, Key: logFile });
+            cleanup.status.success(cleanup.finished);
+
+            Log.success(`Results saved to ${argv.o}`);
+          })
+        } catch (err) {
+
+        }
+
+      }
+      setTimeout(function () {
+        console.log(functionResponse.output);
+      }, 250);
+
+    }
+  })
+
+}
+
+if (process.argv[1].includes('slskit')) {
+  process.argv.splice(1, 1);
+} else {
+  module.exports();
+}
+
