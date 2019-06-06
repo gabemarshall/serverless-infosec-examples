@@ -1,4 +1,4 @@
-service: azure-node-confuserex
+service: azure-node-confuserex # Replace me with a unique value as well
 
 provider:
   name: azure
@@ -20,7 +20,7 @@ functions:
   confuserex:
      handler: handler.confuserex
      environment:
-        BLOB_CONTAINER_NAME: '' # Replace this with a name for your storage bucket, ex: azure-confuserex-blobstore
+        BLOB_CONTAINER_NAME: 'some-random-name' # Replace this with a name for your storage bucket, ex: azure-confuserex-blobstore
      events:
        - http: true
          x-azure-settings:
