@@ -12,3 +12,4 @@ Notes and slides for the talk can be found **[here](https://www.notion.so/jumpm4
 | Example                                                                                                                                                                                                     | Runtime |
 | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | :------ |
 | [Azure ConfuserEx](https://github.com/gabemarshall/serverless-infosec-examples/tree/master/az-confuserx) <br/> Demonstrates using an Azure function to compile and obfuscate payloads from the command line | nodeJS  |
+| [AWS Serverless Scan](https://github.com/gabemarshall/serverless-infosec-examples/tree/master/aws-sls-scan) <br/> Demonstrates using a AWS Lambda to run Gobuster and Nmap against a remotely accessible host. | nodeJS  |
