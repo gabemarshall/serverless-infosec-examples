@@ -14,7 +14,7 @@
     "fast-azure-storage": "^2.3.1",
     "multispinner": "^0.2.1",
     "serverless-azure-functions": "^0.2.0",
-    "shelljs": "^0.8.3",
+    "shelljs": "^0.8.5",
     "yargs": "^13.2.4"
   },
   "devDependencies": {
